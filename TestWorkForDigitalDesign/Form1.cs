@@ -17,7 +17,7 @@ namespace TestWorkForDigitalDesign
 {
     public partial class Form1 : Form
     {
-        private List<Lever> levers = new List<Lever>();
+        private List<Lever> Levers = new List<Lever>();
         private HashSet<Position> OrderCommands = new HashSet<Position>();
         private int N = 0;
         private int CountCommands;
@@ -33,27 +33,12 @@ namespace TestWorkForDigitalDesign
 
         private void button1_Click(object sender, EventArgs e)
         {
-            label1.Visible = false;
-            label2.Visible = false;
-            button1.Visible = false;
-            button2.Visible = true;
-            button3.Visible = true;
-            trackBar1.Visible = false;
-            trackBar2.Visible = false;
-            label3.Visible = false;
-            label4.Visible = false;
+            SwitchingScene();
             N = trackBar1.Value;
             button2.Location = new Point(20, N * 50 + 10);
             button3.Location = new Point(100, N * 50 + 10);
             CountCommands = trackBar2.Value;
-            for (int i = 0; i < N; i++)
-            {
-                for (int j = 0; j < N; j++)
-                {
-                    Lever lever = new Lever(i, j);
-                    levers.Add(lever);
-                }
-            }
+            InitializeLeversList();
             this.Height = N*50+100;
             this.Width = N*50+15;
             Random rnd = new Random();
@@ -67,23 +52,18 @@ namespace TestWorkForDigitalDesign
                 });
                 if (success)
                 {
-                    for (int k = 0; k < N; k++)
-                    {
-                        levers[i * N + k].RotateLever();
-                        levers[k * N + j].RotateLever();
-                    }
-                    levers[i * N + j].RotateLever();
+                    RotateRowAndColumn(i,j);
                 }
             }
             Invalidate();
         }
 
-        private void onPaint(object sender, PaintEventArgs e)
+        private void OnPaint(object sender, PaintEventArgs e)
         {
             Graphics graphics = e.Graphics;
-            for (int i = 0; i < levers.Count; i++)
+            for (int i = 0; i < Levers.Count; i++)
             {
-                Lever lever = levers.ElementAt(i);
+                Lever lever = Levers.ElementAt(i);
                 graphics.DrawImage(lever.Img, lever.x, lever.y, Lever.size, Lever.size);
             }
         }
@@ -95,25 +75,12 @@ namespace TestWorkForDigitalDesign
             {
                 int i = e.Location.Y/Lever.size;
                 int j = e.Location.X/ Lever.size;
-                for (int k = 0; k < N; k++)
+                RotateRowAndColumn(i,j);
+                if (Levers.All(element => element.isRotate) || Levers.All(element => !element.isRotate))
                 {
-                    levers[i * N + k].RotateLever();
-                    levers[k * N + j].RotateLever();
-                }
-                levers[i*N + j].RotateLever();
-                if (levers.All(element => element.isRotate) || levers.All(element => !element.isRotate))
-                {
-                    label1.Visible = true;
-                    label2.Visible = true;
-                    button1.Visible = true;
-                    button2.Visible = false;
-                    button3.Visible = false;
-                    trackBar1.Visible = true;
-                    trackBar2.Visible = true;
-                    label3.Visible = true;
-                    label4.Visible = true;
+                    SwitchingScene();
                     N = 0;
-                    levers.Clear();
+                    Levers.Clear();
                     OrderCommands.Clear();
                     this.Height = 600;
                     this.Width = 600;
@@ -129,17 +96,9 @@ namespace TestWorkForDigitalDesign
 
         private void button2_Click(object sender, EventArgs e)
         {
-            label1.Visible = true;
-            label2.Visible = true;
-            button1.Visible = true;
-            button2.Visible = false;
-            button3.Visible = false;
-            trackBar1.Visible = true;
-            trackBar2.Visible = true;
-            label3.Visible = true;
-            label4.Visible = true;
+            SwitchingScene();
             N = 0;
-            levers.Clear();
+            Levers.Clear();
             OrderCommands.Clear();
             this.Height = 600;
             this.Width = 600;
@@ -148,25 +107,47 @@ namespace TestWorkForDigitalDesign
 
         private void button3_Click(object sender, EventArgs e)
         {
-            levers.Clear();
+            Levers.Clear();
+            InitializeLeversList();
+            foreach (var position in OrderCommands)
+            {
+                RotateRowAndColumn(position.i, position.j);
+            }
+            Invalidate();
+        }
+
+        private void InitializeLeversList()
+        {
             for (int i = 0; i < N; i++)
             {
                 for (int j = 0; j < N; j++)
                 {
-                    Lever lever = new Lever(i, j);
-                    levers.Add(lever);
+                    Levers.Add(new Lever(i, j));
                 }
             }
-            foreach (var position in OrderCommands)
+        }
+
+        private void SwitchingScene()
+        {
+            label1.Visible = !label1.Visible;
+            label2.Visible = !label2.Visible;
+            button1.Visible = !button1.Visible;
+            button2.Visible = !button2.Visible;
+            button3.Visible = !button3.Visible;
+            trackBar1.Visible = !trackBar1.Visible;
+            trackBar2.Visible = !trackBar2.Visible;
+            label3.Visible = !label3.Visible;
+            label4.Visible = !label4.Visible;
+        }
+
+        private void RotateRowAndColumn(int i, int j)
+        {
+            for (int k = 0; k < N; k++)
             {
-                for (int k = 0; k < N; k++)
-                {
-                    levers[position.i * N + k].RotateLever();
-                    levers[k * N + position.j].RotateLever();
-                }
-                levers[position.i * N + position.j].RotateLever();
+                Levers[i * N + k].RotateLever();
+                Levers[k * N + j].RotateLever();
             }
-            Invalidate();
+            Levers[i * N + j].RotateLever();
         }
     }
 }
