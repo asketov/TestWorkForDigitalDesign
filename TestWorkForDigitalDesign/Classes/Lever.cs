@@ -25,7 +25,7 @@ namespace TestWorkForDigitalDesign.Classes
             y = i * 50;
             this.i = i;
             this.j = j;
-            Img = new Bitmap("resources\\lever.png");
+            Img = new Bitmap("..\\..\\..\\resources\\lever.png");
             isRotate = false;
         }
 
